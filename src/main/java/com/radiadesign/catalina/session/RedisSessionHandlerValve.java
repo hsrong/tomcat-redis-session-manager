@@ -22,10 +22,14 @@ public class RedisSessionHandlerValve extends ValveBase {
 
   @Override
   public void invoke(Request request, Response response) throws IOException, ServletException {
+	  Session session = null;
     try {
+      session = request.getSessionInternal(false);
       getNext().invoke(request, response);
     } finally {
-      final Session session = request.getSessionInternal(false);
+    	if(session == null){
+    		session = request.getSessionInternal(false);
+    	}
       storeOrRemoveSession(session);
       manager.afterRequest();
     }
