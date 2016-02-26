@@ -36,6 +36,8 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   protected String host = "localhost";
   protected int port = 6379;
   protected int database = 0;
+  /** redis key ǰ׺ */
+  protected String keyPrev = null;
   protected String password = null;
   protected int timeout = Protocol.DEFAULT_TIMEOUT;
   protected JedisPool connectionPool;
@@ -79,7 +81,18 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     this.database = database;
   }
 
-  public int getTimeout() {
+  public String getKeyPrev() {
+	return keyPrev;
+}
+
+public void setKeyPrev(String keyPrev) {
+	if(keyPrev != null){
+		keyPrev = keyPrev.trim();
+	}
+	this.keyPrev = keyPrev;
+}
+
+public int getTimeout() {
     return timeout;
   }
 
@@ -278,6 +291,10 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
       error = false;
 
+      if(keyPrev != null && keyPrev.length() > 0){
+    	  sessionId += keyPrev;
+      }
+      
       session.setId(sessionId);
       session.tellNew();
 
