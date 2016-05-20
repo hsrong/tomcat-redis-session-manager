@@ -402,13 +402,17 @@ public int getTimeout() {
       log.trace("Attempting to load session " + id + " from Redis");
 
       jedis = acquireConnection();
-      byte[] data = jedis.get(id.getBytes());
+      byte[] idBytes = id.getBytes();
+      byte[] data = jedis.get(idBytes);
       error = false;
 
       if (data == null) {
         log.trace("Session " + id + " not found in Redis");
         session = null;
       } else if (Arrays.equals(NULL_SESSION, data)) {
+    	  log.trace("Session " + id + " is null in Redis");
+    	  jedis.del(idBytes);
+    	  session = null;
         throw new IllegalStateException("Race condition encountered: attempted to load session[" + id + "] which has been created but not yet serialized.");
       } else {
         log.trace("Deserializing session " + id + " from Redis");
